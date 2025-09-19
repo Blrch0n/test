@@ -4,7 +4,7 @@ import { GraduationCap, Eye, EyeOff } from "lucide-react";
 
 interface LoginProps {
   onLogin: (authenticated: boolean) => void;
-  onRoleSelect: (role: "teacher" | "student") => void;
+  onRoleSelect?: (role: "teacher" | "student") => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin, onRoleSelect }) => {
@@ -15,7 +15,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onRoleSelect }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onRoleSelect(role);
+    if (onRoleSelect) onRoleSelect(role);
     onLogin(true);
   };
 

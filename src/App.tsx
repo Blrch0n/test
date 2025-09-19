@@ -41,7 +41,7 @@ import GradeHistoryModal from "./components/modals/GradeHistoryModal";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [userRole, setUserRole] = useState<"teacher" | "student">("teacher");
+  // userRole removed so builders can access all screens without role gating
 
   // Check URL parameters to auto-show modals for screenshot purposes
   const urlParams = new URLSearchParams(window.location.search);
@@ -57,15 +57,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            <Route
-              path="/"
-              element={
-                <Login
-                  onLogin={setIsAuthenticated}
-                  onRoleSelect={setUserRole}
-                />
-              }
-            />
+            <Route path="/" element={<Login onLogin={setIsAuthenticated} />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<ErrorState />} />
           </Routes>
@@ -144,15 +136,10 @@ function App() {
             {/* Allow navigating to Login even when already authenticated */}
             <Route
               path="/login"
-              element={
-                <Login
-                  onLogin={setIsAuthenticated}
-                  onRoleSelect={setUserRole}
-                />
-              }
+              element={<Login onLogin={setIsAuthenticated} />}
             />
             <Route path="/register" element={<Register />} />
-            <Route path="/reports" element={<Reports userRole={userRole} />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="*" element={<ErrorState />} />
           </Routes>
         </main>

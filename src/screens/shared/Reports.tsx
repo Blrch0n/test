@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  BarChart,
   TrendingUp,
   Download,
   Calendar,
@@ -11,11 +10,7 @@ import {
   LineChart,
 } from "lucide-react";
 
-interface ReportsProps {
-  userRole: "teacher" | "student";
-}
-
-const Reports: React.FC<ReportsProps> = ({ userRole }) => {
+const Reports: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("semester");
   const [selectedReport, setSelectedReport] = useState("overview");
 
@@ -75,7 +70,17 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
     },
   ];
 
-  const reports = userRole === "teacher" ? teacherReports : studentReports;
+  // Combine both teacher and student reports so Builder.io (or any consumer)
+  // can access all reports without relying on a role prop.
+  const combinedReports = [...teacherReports, ...studentReports].reduce(
+    (acc: typeof teacherReports, r) => {
+      if (!acc.find((x) => x.id === r.id)) acc.push(r as any);
+      return acc;
+    },
+    [] as typeof teacherReports
+  );
+
+  const reports = combinedReports;
 
   const teacherStats = {
     totalStudents: 156,
@@ -93,7 +98,8 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
     assignmentsCompleted: 28,
   };
 
-  const stats = userRole === "teacher" ? teacherStats : studentStats;
+  // Keep both teacherStats and studentStats available and present both in the UI
+  // so builders can see content for either role. No per-role prop is required.
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -102,9 +108,8 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
           Reports & Analytics
         </h1>
         <p className="text-gray-600">
-          {userRole === "teacher"
-            ? "Comprehensive insights into class performance and student progress"
-            : "Track your academic progress and learning journey"}
+          This page exposes both teacher and student reports so external
+          builders and tools can access all available report types.
         </p>
       </div>
 
@@ -149,8 +154,10 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        {userRole === "teacher" ? (
-          <>
+        {/* Show teacher stats then student stats so builders can fetch either */}
+        <>
+          {/* Teacher stats block */}
+          <div className="col-span-1 md:col-span-5 grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -158,7 +165,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Total Students
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.totalStudents}
+                    {teacherStats.totalStudents}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-blue-600" />
@@ -171,7 +178,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Average Grade
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.averageGrade}%
+                    {teacherStats.averageGrade}%
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-600" />
@@ -184,7 +191,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Attendance Rate
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.attendanceRate}%
+                    {teacherStats.attendanceRate}%
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-600" />
@@ -197,7 +204,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Assignments Graded
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.assignmentsGraded}
+                    {teacherStats.assignmentsGraded}
                   </p>
                 </div>
                 <BookOpen className="h-8 w-8 text-orange-600" />
@@ -210,7 +217,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Active Classes
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.classesActive}
+                    {teacherStats.classesActive}
                   </p>
                 </div>
                 <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -218,9 +225,10 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                 </div>
               </div>
             </div>
-          </>
-        ) : (
-          <>
+          </div>
+
+          {/* Student stats block */}
+          <div className="col-span-1 md:col-span-5 grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -228,7 +236,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Current GPA
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.currentGPA}
+                    {studentStats.currentGPA}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -241,7 +249,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Credits Completed
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.creditsCompleted}
+                    {studentStats.creditsCompleted}
                   </p>
                 </div>
                 <BookOpen className="h-8 w-8 text-green-600" />
@@ -254,7 +262,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Attendance Rate
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.attendanceRate}%
+                    {studentStats.attendanceRate}%
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-600" />
@@ -267,7 +275,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Journal Entries
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.journalEntries}
+                    {studentStats.journalEntries}
                   </p>
                 </div>
                 <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
@@ -282,7 +290,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                     Assignments Done
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.assignmentsCompleted}
+                    {studentStats.assignmentsCompleted}
                   </p>
                 </div>
                 <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -290,8 +298,8 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                 </div>
               </div>
             </div>
-          </>
-        )}
+          </div>
+        </>
       </div>
 
       {/* Charts Section */}
@@ -301,9 +309,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                {userRole === "teacher"
-                  ? "Class Performance Trends"
-                  : "Academic Performance Trends"}
+                Class &amp; Academic Performance Trends
               </h2>
               <LineChart className="h-5 w-5 text-blue-600" />
             </div>
@@ -315,15 +321,14 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
                 Performance Over Time
               </h3>
               <p className="text-gray-500 mb-4">
-                {userRole === "teacher"
-                  ? "Track class average grades and improvement trends"
-                  : "Monitor your grade progression throughout the semester"}
+                Track class average grades and improvement trends — also monitor
+                individual grade progression throughout the semester.
               </p>
               <div className="flex justify-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-blue-500 rounded"></div>
                   <span className="text-gray-600">
-                    {userRole === "teacher" ? "Class Average" : "Your Grades"}
+                    Class Average / Your Grades
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -340,9 +345,7 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                {userRole === "teacher"
-                  ? "Grade Distribution"
-                  : "Subject Performance"}
+                Grade Distribution / Subject Performance
               </h2>
               <PieChart className="h-5 w-5 text-green-600" />
             </div>
@@ -351,14 +354,11 @@ const Reports: React.FC<ReportsProps> = ({ userRole }) => {
             <div className="bg-gray-100 rounded-lg p-8 text-center">
               <PieChart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-600 mb-2">
-                {userRole === "teacher"
-                  ? "Grade Breakdown"
-                  : "Performance by Subject"}
+                Grade Breakdown / Performance by Subject
               </h3>
               <p className="text-gray-500 mb-4">
-                {userRole === "teacher"
-                  ? "Distribution of student grades across all assignments"
-                  : "Your performance across different subjects"}
+                Distribution of student grades across all assignments and
+                individual performance across different subjects.
               </p>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
