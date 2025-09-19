@@ -1,41 +1,49 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  BookOpen, 
-  BarChart3, 
-  Calendar, 
-  User, 
-  Menu, 
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  BookOpen,
+  BarChart3,
+  Calendar,
+  User,
+  Menu,
   X,
   GraduationCap,
-  FileText
-} from 'lucide-react';
+  FileText,
+} from "lucide-react";
 
-interface NavigationProps {
-  userRole: 'teacher' | 'student';
-}
-
-const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
+const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const teacherNavItems = [
-    { path: '/', label: 'Dashboard', icon: BarChart3 },
-    { path: '/gradebook', label: 'Gradebook', icon: BookOpen },
-    { path: '/attendance', label: 'Attendance', icon: Calendar },
-    { path: '/leave-requests', label: 'Leave Requests', icon: FileText },
-    { path: '/reports', label: 'Reports', icon: BarChart3 },
+    { path: "/", label: "Dashboard", icon: BarChart3 },
+    { path: "/gradebook", label: "Gradebook", icon: BookOpen },
+    { path: "/attendance", label: "Attendance", icon: Calendar },
+    { path: "/leave-requests", label: "Leave Requests", icon: FileText },
+    { path: "/reports", label: "Reports", icon: BarChart3 },
   ];
 
   const studentNavItems = [
-    { path: '/', label: 'Dashboard', icon: BarChart3 },
-    { path: '/journal', label: 'Journal', icon: BookOpen },
-    { path: '/grades', label: 'Grades', icon: GraduationCap },
-    { path: '/attendance', label: 'Attendance', icon: Calendar },
-    { path: '/profile', label: 'Profile', icon: User },
+    { path: "/", label: "Dashboard", icon: BarChart3 },
+    { path: "/journal", label: "Journal", icon: BookOpen },
+    { path: "/grades", label: "Grades", icon: GraduationCap },
+    { path: "/attendance", label: "Attendance", icon: Calendar },
+    { path: "/profile", label: "Profile", icon: User },
   ];
 
-  const navItems = userRole === 'teacher' ? teacherNavItems : studentNavItems;
+  // Merge teacher and student nav items and deduplicate by path so navigation
+  // always shows all available routes. Preserve the order: teacher items
+  // first, then student items that don't conflict.
+  const paths = new Set<string>();
+  const navItems = [
+    ...teacherNavItems,
+    ...studentNavItems.filter(
+      (item) => !paths.has(item.path) && (paths.add(item.path) || true)
+    ),
+  ];
+
+  // Ensure the set is primed with teacher paths so filter above works
+  teacherNavItems.forEach((t) => paths.add(t.path));
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -48,7 +56,9 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
           {/* Logo */}
           <div className="flex items-center">
             <GraduationCap className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-semibold text-gray-900">EduTracker</span>
+            <span className="ml-2 text-xl font-semibold text-gray-900">
+              EduTracker
+            </span>
           </div>
 
           {/* Desktop Navigation */}
@@ -62,8 +72,8 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
                     to={item.path}
                     className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                       isActive(item.path)
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     }`}
                   >
                     <Icon className="h-4 w-4 mr-2" />
@@ -74,16 +84,8 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
             </div>
           </div>
 
-          {/* Role Badge */}
-          <div className="hidden md:flex items-center">
-            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-              userRole === 'teacher' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-blue-100 text-blue-800'
-            }`}>
-              {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-            </span>
-          </div>
+          {/* No role badge: navigation now shows combined links so a role
+              prop is not required. */}
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -91,7 +93,11 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -109,8 +115,8 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center px-4 py-3 text-base font-medium transition-colors ${
                       isActive(item.path)
-                        ? 'text-blue-600 bg-blue-50 border-r-2 border-blue-600'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                        ? "text-blue-600 bg-blue-50 border-r-2 border-blue-600"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     }`}
                   >
                     <Icon className="h-5 w-5 mr-3" />
@@ -118,15 +124,7 @@ const Navigation: React.FC<NavigationProps> = ({ userRole }) => {
                   </Link>
                 );
               })}
-              <div className="px-4 py-3 border-t border-gray-200">
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  userRole === 'teacher' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                </span>
-              </div>
+              {/* No role badge in mobile menu either. */}
             </div>
           </div>
         )}

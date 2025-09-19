@@ -42,11 +42,15 @@ import GradeHistoryModal from "./components/modals/GradeHistoryModal";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [userRole, setUserRole] = useState<"teacher" | "student">("teacher");
-  
+
   // Check URL parameters to auto-show modals for screenshot purposes
   const urlParams = new URLSearchParams(window.location.search);
-  const [showGradeEditModal, setShowGradeEditModal] = useState(urlParams.get('modal') === 'grade-edit');
-  const [showGradeHistoryModal, setShowGradeHistoryModal] = useState(urlParams.get('modal') === 'grade-history');
+  const [showGradeEditModal, setShowGradeEditModal] = useState(
+    urlParams.get("modal") === "grade-edit"
+  );
+  const [showGradeHistoryModal, setShowGradeHistoryModal] = useState(
+    urlParams.get("modal") === "grade-history"
+  );
 
   if (!isAuthenticated) {
     return (
@@ -73,7 +77,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <ConditionalNavigation userRole={userRole} />
+        <ConditionalNavigation />
         <main className="pt-16">
           <Routes>
             {/* Teacher Routes - Always accessible */}
@@ -167,13 +171,9 @@ function App() {
 
 export default App;
 
-function ConditionalNavigation({
-  userRole,
-}: {
-  userRole: "teacher" | "student";
-}) {
+function ConditionalNavigation() {
   const location = useLocation();
   const hideOn = ["/login", "/register"];
   if (hideOn.includes(location.pathname)) return null;
-  return <Navigation userRole={userRole} />;
+  return <Navigation />;
 }

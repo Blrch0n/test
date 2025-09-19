@@ -55,7 +55,12 @@ const viewports = [{ name: "desktop", width: 1440, height: 900 }];
   const page = await browser.newPage();
 
   // Capture all routes without authentication since role restrictions were removed
-  const allRoutes = [...teacherRoutes, ...studentRoutes, ...sharedRoutes, ...modalRoutes];
+  const allRoutes = [
+    ...teacherRoutes,
+    ...studentRoutes,
+    ...sharedRoutes,
+    ...modalRoutes,
+  ];
 
   for (const vp of viewports) {
     await page.setViewport({ width: vp.width, height: vp.height });
